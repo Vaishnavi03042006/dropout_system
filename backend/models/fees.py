@@ -3,6 +3,14 @@ from datetime import date
 
 class Fees(db.Model):
     __tablename__ = "fees"
+    __table_args__ = (
+    db.UniqueConstraint(
+        "register_number",
+        "semester",
+        name="unique_fee"
+    ),
+)
+
 
     fee_id = db.Column(db.Integer, primary_key=True)
 
@@ -11,7 +19,7 @@ class Fees(db.Model):
         db.ForeignKey("students.student_id"),
         nullable=False
     )
-
+    register_number = db.Column(db.String(50),nullable=False)
     semester = db.Column(db.Integer, nullable=False)
     tuition_fee = db.Column(db.Float, nullable=False)
     hostel_fee = db.Column(db.Float, nullable=True)
@@ -30,6 +38,7 @@ class Fees(db.Model):
         return {
             "fee_id": self.fee_id,
             "student_id": self.student_id,
+            "register_number": self.register_number,
             "semester": self.semester,
             "tuition_fee": self.tuition_fee,
             "hostel_fee": self.hostel_fee,

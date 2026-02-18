@@ -9,9 +9,12 @@ class Student(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.user_id"),
-        nullable=False,
+        nullable=True,
         unique=True
     )
+
+    # ⭐ ADD THIS
+    student_name = db.Column(db.String(100), nullable=False)
 
     register_number = db.Column(db.String(50), unique=True, nullable=False)
 
@@ -28,6 +31,7 @@ class Student(db.Model):
         return {
             "student_id": self.student_id,
             "user_id": self.user_id,
+            "student_name": self.student_name,
             "register_number": self.register_number,
             "department": self.department,
             "year": self.year,

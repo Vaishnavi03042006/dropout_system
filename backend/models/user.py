@@ -11,6 +11,13 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
 
     password_hash = db.Column(db.String(200), nullable=False)
+    register_number = db.Column(
+    db.String(50),
+    unique=True,
+    nullable=True,
+    index=True
+    )
+
 
     role = db.Column(
         db.String(20),
@@ -36,6 +43,7 @@ class User(db.Model):
         return {
             "user_id": self.user_id,
             "name": self.name,
+            "register_number":self.register_number,
             "email": self.email,
             "role": self.role,
             "department": self.department,
