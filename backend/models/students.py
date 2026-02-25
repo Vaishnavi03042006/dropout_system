@@ -25,6 +25,7 @@ class Student(db.Model):
     admission_date = db.Column(db.Date, nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    dropout_status = db.Column(db.Integer, default=0)
 
     # ---------- Safe Response ----------
     def to_dict(self):

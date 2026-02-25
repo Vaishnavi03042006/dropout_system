@@ -33,20 +33,15 @@ def build_features_for_student(student_id):
     ).all()
 
     if results:
-
         subject_scores = []
 
         for r in results:
+            i1 = r.internal1 or 0
+            i2 = r.internal2 or 0
+            i3 = r.internal3 or 0
+            sem = r.sem_mark or 0
 
-            i1 = r.internal1 if r.internal1 else 0
-            i2 = r.internal2 if r.internal2 else 0
-            i3 = r.internal3 if r.internal3 else 0
-            sem = r.sem_mark if r.sem_mark else 0
-
-            # internal average
             internal_avg = (i1 + i2 + i3) / 3
-
-            # weighted final score
             final_score = (internal_avg * 0.4) + (sem * 0.6)
 
             subject_scores.append(final_score)
@@ -54,10 +49,8 @@ def build_features_for_student(student_id):
         avg_score = sum(subject_scores) / len(subject_scores)
 
         attempts_used = max(
-            r.attempts if r.attempts else 0
-            for r in results
+            r.attempts or 0 for r in results
         )
-
     else:
         avg_score = 0
         attempts_used = 0
@@ -71,14 +64,29 @@ def build_features_for_student(student_id):
         fee_record and fee_record.payment_status != "PAID"
     ) else 0
 
+    # ---------- 🔥 DERIVED DROPOUT LABEL (EARLY PREDICTION) ----------
+    # 0 = LOW RISK
+    # 1 = MEDIUM RISK
+    # 2 = HIGH RISK
+
+    if attendance_percentage < 50 or avg_score < 45:
+        derived_dropout_status = 2   # HIGH
+    elif attendance_percentage < 65 or avg_score < 60:
+        derived_dropout_status = 1   # MEDIUM
+    else:
+        derived_dropout_status = 0   # LOW
+
     # ---------- FINAL FEATURE VECTOR ----------
     features = {
         "student_id": student_id,
-        "register_number": register_number,   # ⭐ ADDED
+        "register_number": register_number,
         "attendance_percentage": attendance_percentage,
         "avg_score": round(avg_score, 2),
         "attempts_used": attempts_used,
-        "fee_pending": fee_pending
+        "fee_pending": fee_pending,
+
+        # ✅ ML LABEL
+        "dropout_status": derived_dropout_status
     }
 
     return features
@@ -89,14 +97,10 @@ def build_all_student_features():
     Build features for ALL students
     """
     students = Student.query.all()
-
     feature_list = []
 
     for student in students:
-        features = build_features_for_student(
-            student.student_id
-        )
-
+        features = build_features_for_student(student.student_id)
         if features:
             feature_list.append(features)
 
