@@ -22,8 +22,9 @@ def create_app():
     from routes.feature_test import feature_test_bp
 
     from routes.risk_analysis import risk_bp
+    from routes.feedback import feedback_bp
 
-    # Register Blueprints
+    app.register_blueprint(feedback_bp, url_prefix="/api/feedback")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(protected_bp, url_prefix="/api")
     app.register_blueprint(student_bp, url_prefix="/api/students")
