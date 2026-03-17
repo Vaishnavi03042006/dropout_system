@@ -61,3 +61,4 @@ def get_student(student_id):
         return jsonify({"error": "Student not found"}), 404
 
     return jsonify(student.to_dict()), 200
+

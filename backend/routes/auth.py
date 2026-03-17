@@ -48,6 +48,8 @@ def register():
 
     data = request.get_json()
 
+    print("REGISTER REQUEST DATA:", data)
+
     if not data:
         return jsonify({"error": "No input data provided"}), 400
 

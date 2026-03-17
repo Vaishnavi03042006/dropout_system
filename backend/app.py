@@ -1,11 +1,17 @@
+
+from flask_cors import CORS
 from flask import Flask
 from config import Config
 from extensions import db, jwt
+from flask_cors import CORS
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # Enable CORS for React frontend
+    CORS(app)
 
     # Initialize Extensions
     db.init_app(app)
@@ -20,7 +26,6 @@ def create_app():
     from routes.fees import fees_bp
     from routes.upload_excel import upload_bp
     from routes.feature_test import feature_test_bp
-
     from routes.risk_analysis import risk_bp
     from routes.feedback import feedback_bp
 

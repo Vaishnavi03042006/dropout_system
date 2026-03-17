@@ -13,7 +13,6 @@ class Student(db.Model):
         unique=True
     )
 
-    # ⭐ ADD THIS
     student_name = db.Column(db.String(100), nullable=False)
 
     register_number = db.Column(db.String(50), unique=True, nullable=False)

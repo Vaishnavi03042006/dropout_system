@@ -8,7 +8,6 @@ from models.students import Student
 attendance_bp = Blueprint("attendance", __name__)
 
 
-# ✅ Create Attendance (Secure)
 @attendance_bp.route("/create", methods=["POST"])
 @jwt_required()
 def create_attendance():

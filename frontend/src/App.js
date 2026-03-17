@@ -1,14 +1,28 @@
+import { BrowserRouter as Router,Routes,Route } from "react-router-dom"
 
-import './App.css';
+import Login from "./pages/Login"
+import Signup from "./pages/Signup"
+import StudentDashboard from "./pages/student/StudentDashboard"
 
-function App() {
-  return (
-    <div className="h-screen flex items-center justify-center bg-blue-200">
-      <h1 className="text-5xl font-bold text-red-600">
-        Tailwind is working!
-      </h1>
-    </div>
-  );
+function App(){
+
+return(
+
+<Router>
+
+<Routes>
+
+<Route path="/" element={<Login/>}/>
+<Route path="/login" element={<Login/>}/>
+<Route path="/signup" element={<Signup/>}/>
+<Route path="/student-dashboard" element={<StudentDashboard/>}/>
+
+</Routes>
+
+</Router>
+
+)
+
 }
 
-export default App;
+export default App
