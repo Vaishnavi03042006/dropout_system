@@ -64,6 +64,7 @@ class Feedback(db.Model):
         return {
             "feedback_id": self.feedback_id,
             "student_id": self.student_id,
+            "student_name": self.student.student_name if self.student else None,
             "register_number": self.register_number,
             "stress_level": self.stress_level,
             "academic_difficulty": self.academic_difficulty,

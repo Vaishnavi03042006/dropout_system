@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.students import Student
 from models.user import User
 from extensions import db
@@ -62,3 +62,27 @@ def get_student(student_id):
 
     return jsonify(student.to_dict()), 200
 
+@student_bp.route("/me", methods=["GET"])
+@jwt_required()
+def get_my_profile():
+
+    user_id = int(get_jwt_identity())
+
+    student = Student.query.filter_by(user_id=user_id).first()
+
+    if not student:
+        return jsonify({"error": "Student profile not found"}), 404
+
+    return jsonify(student.to_dict()), 200
+
+
+# ---------------- GET ALL STUDENTS (Mentor/Admin/Counsellor) ----------------
+@student_bp.route("/all", methods=["GET"])
+@jwt_required()
+def get_all_students():
+    current_user = User.query.get(int(get_jwt_identity()))
+    if not current_user or current_user.role not in ["admin", "mentor", "counsellor"]:
+        return jsonify({"error": "Permission denied"}), 403
+
+    students = Student.query.all()
+    return jsonify([s.to_dict() for s in students]), 200

@@ -291,13 +291,13 @@ def get_feedback_by_student(student_id):
     return jsonify([f.to_dict() for f in feedback_list]), 200
 
 # -------------------------
-# GET ALL FEEDBACKS (Mentor/Admin)
+# GET ALL FEEDBACKS (Mentor/Admin/Counsellor)
 # -------------------------
 @feedback_bp.route("/all", methods=["GET"])
 @jwt_required()
 def get_all_feedbacks():
     current_user = User.query.get(int(get_jwt_identity()))
-    if not current_user or current_user.role not in ["mentor", "admin"]:
+    if not current_user or current_user.role not in ["mentor", "admin", "counsellor"]:
         return jsonify({"error": "Permission denied"}), 403
 
     feedback_list = Feedback.query.order_by(Feedback.created_at.desc()).all()
@@ -324,3 +324,55 @@ def mark_alert_read(alert_id):
     alert.read = True
     db.session.commit()
     return jsonify({"message": "Alert marked as read"}), 200
+
+
+# -------------------------
+# ADD COUNSELLOR NOTES (Counsellor only)
+# -------------------------
+@feedback_bp.route("/<int:feedback_id>/notes", methods=["PUT"])
+@jwt_required()
+def add_counsellor_notes(feedback_id):
+    current_user = User.query.get(int(get_jwt_identity()))
+    if not current_user or current_user.role not in ["counsellor", "admin"]:
+        return jsonify({"error": "Permission denied"}), 403
+
+    feedback = Feedback.query.get(feedback_id)
+    if not feedback:
+        return jsonify({"error": "Feedback not found"}), 404
+
+    data = request.get_json()
+    feedback.action_taken = data.get("action_taken", feedback.action_taken)
+    db.session.commit()
+    return jsonify({"message": "Notes updated", "feedback": feedback.to_dict()}), 200
+
+
+# -------------------------
+# GET FEEDBACK BY STUDENT (Counsellor access)
+# -------------------------
+@feedback_bp.route("/counsellor/student/<int:student_id>", methods=["GET"])
+@jwt_required()
+def counsellor_get_feedback(student_id):
+    current_user = User.query.get(int(get_jwt_identity()))
+    if not current_user or current_user.role not in ["counsellor", "admin", "mentor"]:
+        return jsonify({"error": "Permission denied"}), 403
+
+    feedback_list = Feedback.query.filter_by(student_id=student_id).order_by(Feedback.created_at.desc()).all()
+    return jsonify([f.to_dict() for f in feedback_list]), 200
+
+
+# -------------------------
+# GET MY FEEDBACKS (Student)
+# -------------------------
+@feedback_bp.route("/mine", methods=["GET"])
+@jwt_required()
+def get_my_feedbacks():
+    current_user = User.query.get(int(get_jwt_identity()))
+    if not current_user or current_user.role != "student":
+        return jsonify({"error": "Permission denied"}), 403
+
+    student = Student.query.filter_by(user_id=current_user.user_id).first()
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    feedback_list = Feedback.query.filter_by(student_id=student.student_id).order_by(Feedback.created_at.desc()).all()
+    return jsonify([f.to_dict() for f in feedback_list]), 200
